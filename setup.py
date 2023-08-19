@@ -8,7 +8,7 @@ long_description = (this_directory / "README.md").read_text()
 setup(
     name='yy_vtm',
     packages=['yy_vtm'],             # Chose the same as "name"
-    version='0.1.8',
+    version='0.2',
     license='MIT',
 
     description='Make video thumbnail',
@@ -18,7 +18,7 @@ setup(
     author='Jun',                                   # Type in your name
     author_email='youyinnn@gmail.com',              # Type in your E-Mail
 
-    url='https://github.com/user/reponame',
+    url='https://github.com/youyinnn/yy_vtm',
 
     #   download_url = 'https://github.com/user/reponame/archive/v_01.tar.gz',    # I explain this later on
     # Keywords that define your package best
