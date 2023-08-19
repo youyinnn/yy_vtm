@@ -9,7 +9,7 @@ import math
 import argparse
 
 
-def framing(input_path,  duration_intv_sec=10, max_row_width=4,):
+def framing(input_path,  duration_intv_sec=10, max_row_width=4, min_partition=8):
     input_location, input_filename = os.path.split(input_path)
     # print(input_location, input_filename)
     frame_folder = os.path.join(input_location, 'frame')
@@ -21,7 +21,7 @@ def framing(input_path,  duration_intv_sec=10, max_row_width=4,):
     frame_len = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     frame_shape = None
     duration = frame_len // fps
-    partitions = max(int(duration / duration_intv_sec), 1)
+    partitions = max(int(duration / duration_intv_sec), min_partition)
     interval_in_frame = int(frame_len / partitions)
 
     # print(duration, duration_intv_sec)
@@ -70,24 +70,33 @@ def framing(input_path,  duration_intv_sec=10, max_row_width=4,):
     cv2.imwrite(os.path.join(frame_folder, frame_file_name), grid_img)
 
 
-def FrameCapture(input_path,  duration_intv_sec=600, max_row_width=3,):
-    accepted_video_extension = ['.mp4', '.mkv', '.avi', '.ts', '.wmv']
+def FrameCapture(input_path,  duration_intv_sec=600, max_row_width=3, min_partition=8):
+    accepted_video_extension = ['.mp4', '.mkv', '.avi', '.ts',
+                                '.wmv', '.webm', '.mpeg', 'mpe', 'mpv', '.ogg', '.m4p', '.m4v']
+    all_video_extension = [*accepted_video_extension, '.rmvb']
     input_path = os.path.abspath(input_path)
     if os.path.isfile(input_path):
         all_files = [input_path]
     else:
         all_files = []
-        for ext in accepted_video_extension:
-            all_files.extend(
+        for ext in all_video_extension:
+            files = []
+            files.extend(
                 glob.glob(input_path + f'/**/*{ext}', recursive=True))
-            all_files.extend(
+            files.extend(
                 glob.glob(input_path + f'/**/*{ext.upper()}', recursive=True))
+            if len(files) > 0:
+                if ext in accepted_video_extension:
+                    all_files.extend(files)
+                else:
+                    print(f'Not supported: {files}')
 
-    for file in tqdm(all_files,  bar_format='{l_bar}{bar:30}{r_bar}{bar:-10b}'):
-        try:
-            framing(file, duration_intv_sec, max_row_width)
-        except Exception as e:
-            traceback.print_exc()
+    if len(all_files) > 0:
+        for file in tqdm(all_files,  bar_format='{l_bar}{bar:30}{r_bar}{bar:-10b}'):
+            try:
+                framing(file, duration_intv_sec, max_row_width, min_partition)
+            except Exception as e:
+                traceback.print_exc()
 
 
 def run():
@@ -112,13 +121,18 @@ def run():
         "-rw", "--max-row-width", type=int,
         help="The width of each row.", default=3)
 
+    parser.add_argument(
+        "-mp", "--min-partition", type=int,
+        help="Miniumn partition of the grids.", default=8)
+
     args = parser.parse_args()
 
     input_path = args.input_path
     duration_intv_sec = args.duration_interval_second
     max_row_width = args.max_row_width
+    min_partition = args.min_partition
     FrameCapture(input_path, duration_intv_sec=duration_intv_sec,
-                 max_row_width=max_row_width)
+                 max_row_width=max_row_width, min_partition=min_partition)
 
 
 if __name__ == '__main__':
