@@ -7,14 +7,22 @@ from tqdm.auto import tqdm
 import traceback
 import math
 import argparse
+import shutil
+
+cleaned_frame_folder = []
 
 
 def framing(input_path,  duration_intv_sec=10, max_row_width=4, min_partition=8):
     input_location, input_filename = os.path.split(input_path)
     # print(input_location, input_filename)
     frame_folder = os.path.join(input_location, 'frame')
+    global cleaned_frame_folder
     if not os.path.exists(frame_folder):
         os.mkdir(frame_folder)
+    elif frame_folder not in cleaned_frame_folder:
+        shutil.rmtree(frame_folder)
+        os.mkdir(frame_folder)
+        cleaned_frame_folder.append(frame_folder)
     imgs = []
     cap = cv2.VideoCapture(input_path)
     fps = cap.get(cv2.CAP_PROP_FPS)
