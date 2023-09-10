@@ -8,7 +8,7 @@ long_description = (this_directory / "README.md").read_text()
 setup(
     name='yy_vtm',
     packages=['yy_vtm'],             # Chose the same as "name"
-    version='0.2.4',
+    version='0.3',
     license='MIT',
 
     description='Make video thumbnail',
